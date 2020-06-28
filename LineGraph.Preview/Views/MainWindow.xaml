@@ -1,0 +1,33 @@
+﻿<Window x:Class="LineGraph.Preview.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:LineGraph.Preview.ViewModels"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:controls="clr-namespace:LineGraph.Controls;assembly=LineGraph"
+        xmlns:local="clr-namespace:LineGraph.Preview"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Closing">
+            <i:InvokeCommandAction Command="{Binding ClosingCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
+    <Window.DataContext>
+        <vm:MainWindowViewModel/>
+    </Window.DataContext>
+
+    <Window.Resources>
+        <Style TargetType="{x:Type controls:LineControl}">
+            <Setter Property="Background" Value="{Binding Color}"/>
+            <Setter Property="Points" Value="{Binding Points}"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Background="Black">
+        <controls:LineGraph ItemsSource="{Binding LineControls}"/>
+    </Grid>
+</Window>
