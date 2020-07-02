@@ -51,9 +51,21 @@ namespace LineGraph.Controls
         Canvas Canvas { get; set; } = null;
         List<object> _DelayToBindVMs = new List<object>();
 
+        ScaleTransform _Scale = new ScaleTransform();
+        TranslateTransform _Translation = new TranslateTransform();
+
+        bool _IsPressedToMove = false;
+        Point _Offset = new Point();
+        Point _CapturedPoint = new Point();
+
         static LineGraph()
         {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(LineGraph), new FrameworkPropertyMetadata(typeof(LineGraph)));
+        }
+
+        public LineGraph()
+        {
+            SizeChanged += LineGraph_SizeChanged;
         }
 
         public override void OnApplyTemplate()
@@ -62,6 +74,11 @@ namespace LineGraph.Controls
 
             Canvas = GetTemplateChild("__LineGraphCanvas__") as Canvas;
 
+            var transform = new TransformGroup();
+            transform.Children.Add(_Scale);
+            transform.Children.Add(_Translation);
+            Canvas.RenderTransform = transform;
+
             if (_DelayToBindVMs.Count() > 0)
             {
                 foreach (var vm in _DelayToBindVMs)
@@ -69,6 +86,66 @@ namespace LineGraph.Controls
                     Canvas.Children.Add(new LineControl(vm));
                 }
             }
+        }
+
+        protected override void OnMouseDown(MouseButtonEventArgs e)
+        {
+            base.OnMouseDown(e);
+
+            if(e.RightButton == MouseButtonState.Pressed)
+            {
+                _IsPressedToMove = true;
+                _CapturedPoint = e.GetPosition(this);
+                _CapturedPoint.X -= _Offset.X;
+                _CapturedPoint.Y -= _Offset.Y;
+            }
+        }
+
+        protected override void OnMouseUp(MouseButtonEventArgs e)
+        {
+            base.OnMouseUp(e);
+
+            if(e.RightButton == MouseButtonState.Released)
+            {
+                _IsPressedToMove = false;
+            }
+        }
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+
+            if(_IsPressedToMove == false)
+            {
+                return;
+            }
+
+            var pos = e.GetPosition(this) - _CapturedPoint;
+            _Translation.X = pos.X;
+            _Translation.Y = pos.Y;
+
+            _Offset.X = pos.X;
+            _Offset.Y = pos.Y;
+
+            UpdateScaleCenter();
+        }
+
+        protected override void OnMouseWheel(MouseWheelEventArgs e)
+        {
+            base.OnMouseWheel(e);
+
+            if(e.Delta > 0)
+            {
+                _Scale.ScaleX += 0.1;
+                _Scale.ScaleY += 0.1;
+            }
+            else
+            {
+                _Scale.ScaleX -= 0.1;
+                _Scale.ScaleY -= 0.1;
+            }
+
+            UpdateScaleCenter();
         }
 
         protected override void OnItemsSourceChanged(IEnumerable oldValue, IEnumerable newValue)
@@ -102,6 +179,17 @@ namespace LineGraph.Controls
                     }
                 }
             }
+        }
+
+        void LineGraph_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            UpdateScaleCenter();
+        }
+
+        void UpdateScaleCenter()
+        {
+            _Scale.CenterX = ActualWidth * 0.5 - _Offset.X;
+            _Scale.CenterY = ActualHeight * 0.5 - _Offset.Y;
         }
     }
 }

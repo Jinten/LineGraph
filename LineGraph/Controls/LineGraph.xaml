@@ -12,7 +12,6 @@
                             BorderThickness="{TemplateBinding BorderThickness}">
 
                         <Canvas x:Name="__LineGraphCanvas__"/>
-
                     </Border>
                 </ControlTemplate>
             </Setter.Value>

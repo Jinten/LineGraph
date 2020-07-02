@@ -37,9 +37,9 @@ namespace LineGraph.Preview.ViewModels
 
         public void Update()
         {
-            var point = new Point(_Offset.X + _Counter, _Offset.Y + _Random.NextDouble() * 100);
+            var point = new Point(_Offset.X + _Counter * 10, _Offset.Y + _Random.NextDouble() * 100);
 
-            if (_Points.Count < 1000)
+            if (_Points.Count < 100)
             {
                 _Points.Add(point);
             }
@@ -48,7 +48,7 @@ namespace LineGraph.Preview.ViewModels
                 _Points[_Counter] = point;
             }
 
-            _Counter = (_Counter + 1) % 1000;
+            _Counter = (_Counter + 1) % 100;
         }
     }
 

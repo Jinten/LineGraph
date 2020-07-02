@@ -8,7 +8,7 @@
         xmlns:controls="clr-namespace:LineGraph.Controls;assembly=LineGraph"
         xmlns:local="clr-namespace:LineGraph.Preview"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="450" Width="1000">
 
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closing">
@@ -27,7 +27,5 @@
         </Style>
     </Window.Resources>
 
-    <Grid Background="Black">
-        <controls:LineGraph ItemsSource="{Binding LineControls}"/>
-    </Grid>
+    <controls:LineGraph ItemsSource="{Binding LineControls}" Background="Black"/>
 </Window>
