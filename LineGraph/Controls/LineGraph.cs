@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -56,6 +57,38 @@ namespace LineGraph.Controls
         public static readonly DependencyProperty ScaleProperty =
             DependencyProperty.Register(nameof(Scale), typeof(double), typeof(LineGraph), new FrameworkPropertyMetadata(1.0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, ScalePropertyChanged));
 
+        public double ScaleCenterX
+        {
+            get => (double)GetValue(ScaleCenterXProperty);
+            set => SetValue(ScaleCenterXProperty, value);
+        }
+        public static readonly DependencyProperty ScaleCenterXProperty =
+            DependencyProperty.Register(nameof(ScaleCenterX), typeof(double), typeof(LineGraph), new FrameworkPropertyMetadata(0.0));
+
+        public double ScaleCenterY
+        {
+            get => (double)GetValue(ScaleCenterYProperty);
+            set => SetValue(ScaleCenterYProperty, value);
+        }
+        public static readonly DependencyProperty ScaleCenterYProperty =
+            DependencyProperty.Register(nameof(ScaleCenterY), typeof(double), typeof(LineGraph), new FrameworkPropertyMetadata(0.0));
+
+        public double TranslationX
+        {
+            get => (double)GetValue(TranslationXProperty);
+            set => SetValue(TranslationXProperty, value);
+        }
+        public static readonly DependencyProperty TranslationXProperty =
+            DependencyProperty.Register(nameof(TranslationX), typeof(double), typeof(LineGraph), new FrameworkPropertyMetadata(0.0));
+
+        public double TranslationY
+        {
+            get => (double)GetValue(TranslationYProperty);
+            set => SetValue(TranslationYProperty, value);
+        }
+        public static readonly DependencyProperty TranslationYProperty =
+            DependencyProperty.Register(nameof(TranslationY), typeof(double), typeof(LineGraph), new FrameworkPropertyMetadata(0.0));
+
         public Point Offset
         {
             get => (Point)GetValue(OffsetProperty);
@@ -107,7 +140,7 @@ namespace LineGraph.Controls
         {
             base.OnMouseDown(e);
 
-            if(e.RightButton == MouseButtonState.Pressed)
+            if (e.RightButton == MouseButtonState.Pressed)
             {
                 _IsPressedToMove = true;
                 _CapturedPoint = e.GetPosition(this);
@@ -120,7 +153,7 @@ namespace LineGraph.Controls
         {
             base.OnMouseUp(e);
 
-            if(e.RightButton == MouseButtonState.Released)
+            if (e.RightButton == MouseButtonState.Released)
             {
                 _IsPressedToMove = false;
             }
@@ -130,17 +163,12 @@ namespace LineGraph.Controls
         {
             base.OnMouseMove(e);
 
-            if(_IsPressedToMove == false)
+            if (_IsPressedToMove == false)
             {
                 return;
             }
 
             var pos = e.GetPosition(this) - _CapturedPoint;
-            pos.X = Math.Min(0, pos.X);
-
-            _Translation.X = pos.X;
-            _Translation.Y = pos.Y;
-
             Offset = new Point(pos.X, pos.Y);
 
             UpdateScaleCenter();
@@ -175,6 +203,11 @@ namespace LineGraph.Controls
                     {
                         Canvas.Children.Remove(removeContent);
                     }
+
+                    if (oldValue is INotifyCollectionChanged notifyCollection)
+                    {
+                        notifyCollection.CollectionChanged -= NotifyCollection_CollectionChanged;
+                    }
                 }
                 if (newValue != null)
                 {
@@ -184,7 +217,38 @@ namespace LineGraph.Controls
                     {
                         Canvas.Children.Add(new LineControl(vm));
                     }
+
+                    if (newValue is INotifyCollectionChanged notifyCollection)
+                    {
+                        notifyCollection.CollectionChanged += NotifyCollection_CollectionChanged;
+                    }
                 }
+            }
+        }
+
+        void NotifyCollection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Reset:
+                    Canvas.Children.Clear();
+                    break;
+                case NotifyCollectionChangedAction.Remove:
+                    {
+                        var lineControls = Canvas.Children.OfType<LineControl>().ToArray();
+                        var removeControls = lineControls.Where(arg => e.OldItems.Contains(arg.DataContext));
+                        foreach (var removeControl in removeControls)
+                        {
+                            Canvas.Children.Remove(removeControl);
+                        }
+                    }
+                    break;
+                case NotifyCollectionChangedAction.Add:
+                    foreach (var vm in e.NewItems)
+                    {
+                        Canvas.Children.Add(new LineControl(vm));
+                    }
+                    break;
             }
         }
 
@@ -193,10 +257,18 @@ namespace LineGraph.Controls
             UpdateScaleCenter();
         }
 
+        void ClampTranslation()
+        {
+            _Translation.X = Math.Min((Scale - 1) * _Scale.CenterX, _Translation.X);
+        }
+
         void UpdateScaleCenter()
         {
             _Scale.CenterX = ActualWidth * 0.5 - Offset.X;
             _Scale.CenterY = ActualHeight * 0.5 - Offset.Y;
+
+            ScaleCenterX = _Scale.CenterX;
+            ScaleCenterY = _Scale.CenterY;
         }
 
         static void ScalePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -204,6 +276,8 @@ namespace LineGraph.Controls
             var lineGraph = d as LineGraph;
             lineGraph._Scale.ScaleX = lineGraph.Scale;
             lineGraph._Scale.ScaleY = lineGraph.Scale;
+
+            lineGraph.ClampTranslation();
         }
 
         static void OffsetPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -211,6 +285,10 @@ namespace LineGraph.Controls
             var lineGraph = d as LineGraph;
             lineGraph._Translation.X = lineGraph.Offset.X;
             lineGraph._Translation.Y = lineGraph.Offset.Y;
+            lineGraph.ClampTranslation();
+
+            lineGraph.TranslationX = lineGraph._Translation.X;
+            lineGraph.TranslationY = lineGraph._Translation.Y;
         }
     }
 }

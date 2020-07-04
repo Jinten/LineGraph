@@ -2,6 +2,7 @@
 using Livet.Commands;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,7 +22,7 @@ namespace LineGraph.Preview.ViewModels
         Brush _Color = null;
 
         public IEnumerable<Point> Points => _Points;
-        ObservableSynchronizedCollection<Point> _Points = new ObservableSynchronizedCollection<Point>();
+        ObservableCollection<Point> _Points = new ObservableCollection<Point>();
 
         int _Counter = 0;
         Random _Random = null;
@@ -50,6 +51,12 @@ namespace LineGraph.Preview.ViewModels
 
             _Counter = (_Counter + 1) % 100;
         }
+
+        public void Clear()
+        {
+            _Points.Clear();
+            _Counter = 0;
+        }
     }
 
     class MainWindowViewModel : ViewModel
@@ -60,6 +67,20 @@ namespace LineGraph.Preview.ViewModels
             set => RaisePropertyChangedIfSet(ref _Offset, value);
         }
         Point _Offset = new Point(0,0);
+
+        public ViewModelCommand ClearCommand
+        {
+            get
+            {
+                if (_ClearCommand == null)
+                {
+                    _ClearCommand = new ViewModelCommand(Clear);
+                }
+                return _ClearCommand;
+            }
+        }
+        ViewModelCommand _ClearCommand = null;
+
 
         public ViewModelCommand ClosingCommand
         {
@@ -121,6 +142,14 @@ namespace LineGraph.Preview.ViewModels
         public bool IsInDesignMode(DependencyObject element)
         {
             return System.ComponentModel.DesignerProperties.GetIsInDesignMode(element);
+        }
+
+        void Clear()
+        {
+            foreach(var control in _LineControls)
+            {
+                control.Clear();
+            }
         }
 
         void Closing()

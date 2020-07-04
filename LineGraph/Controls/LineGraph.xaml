@@ -10,16 +10,28 @@
                     <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}">
-                        <Canvas x:Name="__LineGraphCanvas__">
-                            <local:Ruler Scale="{TemplateBinding Scale}"
-                                         Offset="{TemplateBinding Offset}"
-                                         Height="{TemplateBinding ActualHeight}"
-                                         ParentWidth="{TemplateBinding ActualWidth}"
-                                         Width="32"
-                                         Orientation="Vertical"
-                                         IsHitTestVisible="False"
-                                         ScaleColor="Gray"
-                                         LineColor="#55CCCCCC"/>
+                        <Canvas>
+                            <Canvas x:Name="__LineGraphCanvas__"/>
+                            <Canvas>
+                                <Canvas.RenderTransform>
+                                    <TransformGroup>
+                                        <ScaleTransform CenterX="0"
+                                                        CenterY="{Binding ScaleCenterY, RelativeSource={RelativeSource AncestorType={x:Type local:LineGraph}}}"
+                                                        ScaleX="{Binding Scale, RelativeSource={RelativeSource AncestorType={x:Type local:LineGraph}}}"
+                                                        ScaleY="{Binding Scale, RelativeSource={RelativeSource AncestorType={x:Type local:LineGraph}}}"/>
+                                        <TranslateTransform Y="{Binding TranslationY, RelativeSource={RelativeSource AncestorType={x:Type local:LineGraph}}}"/>
+                                    </TransformGroup>
+                                </Canvas.RenderTransform>
+                                <local:Ruler Scale="{TemplateBinding Scale}"
+                                             Offset="{TemplateBinding Offset}"
+                                             Height="{TemplateBinding ActualHeight}"
+                                             ParentWidth="{TemplateBinding ActualWidth}"                                         
+                                             Width="32"
+                                             Orientation="Vertical"
+                                             IsHitTestVisible="False"
+                                             ScaleColor="Gray"
+                                             LineColor="#55CCCCCC"/>
+                            </Canvas>
                         </Canvas>
                     </Border>
                 </ControlTemplate>

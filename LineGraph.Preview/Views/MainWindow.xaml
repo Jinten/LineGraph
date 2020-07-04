@@ -10,6 +10,10 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="1000">
 
+    <Window.InputBindings>
+        <KeyBinding Command="{Binding ClearCommand}" Key="Esc"/>
+    </Window.InputBindings>
+
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closing">
             <i:InvokeCommandAction Command="{Binding ClosingCommand}"/>

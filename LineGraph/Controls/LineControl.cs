@@ -14,6 +14,14 @@ namespace LineGraph.Controls
 {
     public class LineControl : Control
     {
+        public bool Transacting
+        {
+            get => (bool)GetValue(TransactingProperty);
+            set => SetValue(TransactingProperty, value);
+        }
+        public static readonly DependencyProperty TransactingProperty =
+            DependencyProperty.Register(nameof(Transacting), typeof(bool), typeof(LineControl), new FrameworkPropertyMetadata(false, TransactingPropertyChanged));
+
         public double StrokeThickness
         {
             get => (double)GetValue(StrokeThicknessProperty);
@@ -64,6 +72,15 @@ namespace LineGraph.Controls
             }
         }
 
+        static void TransactingPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var control = d as LineControl;
+            if((bool)e.NewValue == false)
+            {
+                control.InvalidateVisual();
+            }
+        }
+
         void UpdateLinePen()
         {
             _LinePen = new Pen(Background, StrokeThickness);
@@ -71,7 +88,10 @@ namespace LineGraph.Controls
 
         void PointCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            InvalidateVisual();
+            if (Transacting == false)
+            {
+                InvalidateVisual();
+            }
         }
 
         static void StrokeThicknessPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)

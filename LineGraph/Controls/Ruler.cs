@@ -28,6 +28,14 @@ namespace LineGraph.Controls
         public static readonly DependencyProperty ScaleProperty =
             DependencyProperty.Register(nameof(Scale), typeof(double), typeof(Ruler), new FrameworkPropertyMetadata(1.0, FrameworkPropertyMetadataOptions.AffectsRender));
 
+        public Point ScaleCenter
+        {
+            get => (Point)GetValue(ScaleCenterProperty);
+            set => SetValue(ScaleCenterProperty, value);
+        }
+        public static readonly DependencyProperty ScaleCenterProperty =
+            DependencyProperty.Register(nameof(ScaleCenter), typeof(Point), typeof(Ruler), new FrameworkPropertyMetadata(new Point()));
+
         public Point Offset
         {
             get => (Point)GetValue(OffsetProperty);
@@ -139,29 +147,28 @@ namespace LineGraph.Controls
         {
             double s = Math.Max(Scale, 1);
             double numScale = Math.Max(1.0 / Scale, 1);
-            double offset = Offset.X;
 
             int init = (int)(-Offset.Y / LineDistance - numScale * 2) - 1;
             int count = (int)((-Offset.Y + ActualHeight * numScale) / LineDistance) + 1;
             for (int i = init; i < count; ++i)
             {
                 double y = i * LineDistance;
-                dc.DrawLine(_ScalePen, new Point(LineOffset - offset, y), new Point(LineLength - offset, y));
+                dc.DrawLine(_ScalePen, new Point(LineOffset, y), new Point(LineLength, y));
 
                 for (int j = 1; j < 10; ++j)
                 {
                     double sub_y = y + j * SubLineDistance;
-                    dc.DrawLine(_ScalePen, new Point(SubLineOffset - offset, sub_y), new Point(SubLineLength - offset, sub_y));
+                    dc.DrawLine(_ScalePen, new Point(SubLineOffset, sub_y), new Point(SubLineLength, sub_y));
                 }
 
                 int numText = (int)(y * numScale);
                 var text = new FormattedText($"{numText}", CultureInfo.CurrentCulture, FlowDirection.LeftToRight, Typeface, 8, ScaleColor, 1.0);
                 var text_y = y - text.Height * 0.5;
-                dc.DrawText(text, new Point(LineLength + LineOffset - offset, text_y));
+                dc.DrawText(text, new Point(LineLength + LineOffset, text_y));
 
                 var line_y = text_y + text.Height * 0.5;
-                var line_x = LineLength + LineOffset + text.Width + 4 - offset;
-                dc.DrawLine(_LinePen, new Point(line_x, line_y), new Point(ParentWidth - offset, line_y));
+                var line_x = LineLength + LineOffset + text.Width + 4;
+                dc.DrawLine(_LinePen, new Point(line_x, line_y), new Point(ParentWidth, line_y));
             }
         }
 
