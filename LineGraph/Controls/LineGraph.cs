@@ -289,6 +289,8 @@ namespace LineGraph.Controls
 
             lineGraph.TranslationX = lineGraph._Translation.X;
             lineGraph.TranslationY = lineGraph._Translation.Y;
+
+            lineGraph.Offset = new Point(lineGraph.TranslationX, lineGraph.TranslationY);
         }
     }
 }

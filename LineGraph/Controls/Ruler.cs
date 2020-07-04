@@ -146,10 +146,10 @@ namespace LineGraph.Controls
         void OnRenderVertical(DrawingContext dc)
         {
             double s = Math.Max(Scale, 1);
-            double numScale = Math.Max(1.0 / Scale, 1);
+            double rcpScale = Math.Max(1.0 / Scale, 1);
 
-            int init = (int)(-Offset.Y / LineDistance - numScale * 2) - 1;
-            int count = (int)((-Offset.Y + ActualHeight * numScale) / LineDistance) + 1;
+            int init = (int)(-Offset.Y / LineDistance - rcpScale * 2) - 1;
+            int count = (int)((-Offset.Y + ActualHeight * rcpScale) / LineDistance) + 1;
             for (int i = init; i < count; ++i)
             {
                 double y = i * LineDistance;
@@ -161,14 +161,14 @@ namespace LineGraph.Controls
                     dc.DrawLine(_ScalePen, new Point(SubLineOffset, sub_y), new Point(SubLineLength, sub_y));
                 }
 
-                int numText = (int)(y * numScale);
+                int numText = (int)(y * rcpScale);
                 var text = new FormattedText($"{numText}", CultureInfo.CurrentCulture, FlowDirection.LeftToRight, Typeface, 8, ScaleColor, 1.0);
                 var text_y = y - text.Height * 0.5;
                 dc.DrawText(text, new Point(LineLength + LineOffset, text_y));
 
                 var line_y = text_y + text.Height * 0.5;
                 var line_x = LineLength + LineOffset + text.Width + 4;
-                dc.DrawLine(_LinePen, new Point(line_x, line_y), new Point(ParentWidth, line_y));
+                dc.DrawLine(_LinePen, new Point(line_x, line_y), new Point(ParentWidth * rcpScale, line_y));
             }
         }
 
