@@ -48,6 +48,22 @@ namespace LineGraph.Controls
     /// </summary>
     public class LineGraph : MultiSelector
     {
+        public double Scale
+        {
+            get => (double)GetValue(ScaleProperty);
+            set => SetValue(ScaleProperty, value);
+        }
+        public static readonly DependencyProperty ScaleProperty =
+            DependencyProperty.Register(nameof(Scale), typeof(double), typeof(LineGraph), new FrameworkPropertyMetadata(1.0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, ScalePropertyChanged));
+
+        public Point Offset
+        {
+            get => (Point)GetValue(OffsetProperty);
+            set => SetValue(OffsetProperty, value);
+        }
+        public static readonly DependencyProperty OffsetProperty =
+            DependencyProperty.Register(nameof(Offset), typeof(Point), typeof(LineGraph), new FrameworkPropertyMetadata(new Point(0, 0), FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OffsetPropertyChanged));
+
         Canvas Canvas { get; set; } = null;
         List<object> _DelayToBindVMs = new List<object>();
 
@@ -55,7 +71,6 @@ namespace LineGraph.Controls
         TranslateTransform _Translation = new TranslateTransform();
 
         bool _IsPressedToMove = false;
-        Point _Offset = new Point();
         Point _CapturedPoint = new Point();
 
         static LineGraph()
@@ -96,8 +111,8 @@ namespace LineGraph.Controls
             {
                 _IsPressedToMove = true;
                 _CapturedPoint = e.GetPosition(this);
-                _CapturedPoint.X -= _Offset.X;
-                _CapturedPoint.Y -= _Offset.Y;
+                _CapturedPoint.X -= Offset.X;
+                _CapturedPoint.Y -= Offset.Y;
             }
         }
 
@@ -121,11 +136,12 @@ namespace LineGraph.Controls
             }
 
             var pos = e.GetPosition(this) - _CapturedPoint;
+            pos.X = Math.Min(0, pos.X);
+
             _Translation.X = pos.X;
             _Translation.Y = pos.Y;
 
-            _Offset.X = pos.X;
-            _Offset.Y = pos.Y;
+            Offset = new Point(pos.X, pos.Y);
 
             UpdateScaleCenter();
         }
@@ -134,16 +150,7 @@ namespace LineGraph.Controls
         {
             base.OnMouseWheel(e);
 
-            if(e.Delta > 0)
-            {
-                _Scale.ScaleX += 0.1;
-                _Scale.ScaleY += 0.1;
-            }
-            else
-            {
-                _Scale.ScaleX -= 0.1;
-                _Scale.ScaleY -= 0.1;
-            }
+            Scale += e.Delta > 0 ? +0.1 : -0.1;
 
             UpdateScaleCenter();
         }
@@ -188,8 +195,22 @@ namespace LineGraph.Controls
 
         void UpdateScaleCenter()
         {
-            _Scale.CenterX = ActualWidth * 0.5 - _Offset.X;
-            _Scale.CenterY = ActualHeight * 0.5 - _Offset.Y;
+            _Scale.CenterX = ActualWidth * 0.5 - Offset.X;
+            _Scale.CenterY = ActualHeight * 0.5 - Offset.Y;
+        }
+
+        static void ScalePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var lineGraph = d as LineGraph;
+            lineGraph._Scale.ScaleX = lineGraph.Scale;
+            lineGraph._Scale.ScaleY = lineGraph.Scale;
+        }
+
+        static void OffsetPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var lineGraph = d as LineGraph;
+            lineGraph._Translation.X = lineGraph.Offset.X;
+            lineGraph._Translation.Y = lineGraph.Offset.Y;
         }
     }
 }

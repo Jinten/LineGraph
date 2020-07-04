@@ -83,6 +83,7 @@
   <ItemGroup>
     <Compile Include="Controls\LineControl.cs" />
     <Compile Include="Controls\LineGraph.cs" />
+    <Compile Include="Controls\Ruler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

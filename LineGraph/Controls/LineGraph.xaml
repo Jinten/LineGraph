@@ -10,8 +10,17 @@
                     <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}">
-
-                        <Canvas x:Name="__LineGraphCanvas__"/>
+                        <Canvas x:Name="__LineGraphCanvas__">
+                            <local:Ruler Scale="{TemplateBinding Scale}"
+                                         Offset="{TemplateBinding Offset}"
+                                         Height="{TemplateBinding ActualHeight}"
+                                         ParentWidth="{TemplateBinding ActualWidth}"
+                                         Width="32"
+                                         Orientation="Vertical"
+                                         IsHitTestVisible="False"
+                                         ScaleColor="Gray"
+                                         LineColor="#55CCCCCC"/>
+                        </Canvas>
                     </Border>
                 </ControlTemplate>
             </Setter.Value>

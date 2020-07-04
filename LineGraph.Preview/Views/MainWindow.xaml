@@ -27,5 +27,5 @@
         </Style>
     </Window.Resources>
 
-    <controls:LineGraph ItemsSource="{Binding LineControls}" Background="Black"/>
+    <controls:LineGraph ItemsSource="{Binding LineControls}" Background="Black" Offset="{Binding Offset}"/>
 </Window>

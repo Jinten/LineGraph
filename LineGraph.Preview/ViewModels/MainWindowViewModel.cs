@@ -54,6 +54,13 @@ namespace LineGraph.Preview.ViewModels
 
     class MainWindowViewModel : ViewModel
     {
+        public Point Offset
+        {
+            get => _Offset;
+            set => RaisePropertyChangedIfSet(ref _Offset, value);
+        }
+        Point _Offset = new Point(0,0);
+
         public ViewModelCommand ClosingCommand
         {
             get
